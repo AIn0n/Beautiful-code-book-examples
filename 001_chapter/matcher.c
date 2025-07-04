@@ -21,7 +21,7 @@
 	   if (regexp[0] == '$' && regexp[1] == '\0')
 	       return *text == '\0';
 	   if (*text!='\0' && (regexp[0]=='.' || regexp[0]==*text))
-	       returnmatchhere(regexp+1, text+1);
+	       return matchhere(regexp+1, text+1);
 	   return 0;
 	}
 
