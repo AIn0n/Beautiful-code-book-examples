@@ -1,4 +1,4 @@
-svn_delta_editor_t *editor
+    svn_delta_editor_t *editor
 	void *edit_baton;
 
 	/* In real life, this would be a passed-in parameter, of course. */
