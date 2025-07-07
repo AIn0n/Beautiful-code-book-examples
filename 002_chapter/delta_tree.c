@@ -143,5 +143,90 @@
 	                               void *parent_baton,
 	                               apr_pool_t *pool);
 
+	/** We are going to add a new subdirectory named path. We will use
+	   * the value this callback stores in *child_baton as the
+	   * parent_baton for further changes in the new subdirectory.
+	   */
+	  svn_error_t *(*add_directory)(const char *path,
+	                                void *parent_baton,
+	                                apr_pool_t *dir_pool,
+	                                void **child_baton);
 
-// TBD
+	  /** We are going to make changes in a subdirectory (of the directory
+	   * identified by parent_baton). The subdirectory is specified by
+	   * path. The callback must store a value in *child_baton that
+	   * should be used as the parent_baton for subsequent changes in this
+	   * subdirectory.
+	   */
+	  svn_error_t *(*open_directory)(const char *path,
+	                                 void *parent_baton,
+	                                 apr_pool_t *dir_pool,
+	                                 void **child_baton);
+
+	  /** We are done processing a subdirectory, whose baton is dir_baton
+	   * (set by add_directory or open_directory). We won't be using
+	   * the baton any more, so whatever resources it refers to may now be
+	   * freed.
+	   */
+	  svn_error_t *(*close_directory)(void *dir_baton,
+	                                  apr_pool_t *pool);
+	  /** We are going to add a new file named path. The callback can
+	   * store a baton for this new file in **file_baton; whatever value
+	   * it stores there should be passed through to apply_textdelta.
+	   */
+	  svn_error_t *(*add_file)(const char *path,
+	                           void *parent_baton,
+	                           apr_pool_t *file_pool,
+	                           void **file_baton);
+
+	/** We are going to make change to a file named path, which resides
+	   * in the directory identified by parent_baton.
+	   *
+	   * The callback can store a baton for this new file in **file_baton;
+	   * whatever value it stores there should be passed through to
+	   * apply_textdelta.
+	   */
+	  svn_error_t *(*open_file)(const char *path,
+	                            void *parent_baton,
+	                            apr_pool_t *file_pool,
+	                             void **file_baton);
+
+	  /** Apply a text delta, yielding the new revision of a file. 
+	   *
+	   * file_baton indicates the file we're creating or updating, and the
+	   * ancestor file on which it is based; it is the baton set by some
+	   * prior add_file or open_file callback.
+	   *
+	   * The callback should set *handle to a text delta window
+	   * handler; we will then call *handle on successive text
+	   * delta windows as we receive them. The callback should set
+	   * * handler_baton to the value we should pass as the baton
+	   * argument to *handler.
+	   */
+	  svn_error_t *(*apply_textdelta)(void *file_baton,
+	                                  apr_pool_t *pool,
+	                                  svn_txdelta_window_handler_t *handler,
+	                                  void **handler_baton);
+	  /** We are done processing a file, whose baton is file_baton (set by
+	   * add_file or open_file). We won't be using the baton any
+	   * more, so whatever resources it refers to may now be freed.
+	   */
+	  svn_error_t *(*close_file)(void *file_baton,
+	                             apr_pool_t *pool)
+
+	  /** All delta processing is done. Call this, with the edit_baton for
+	   * the entire edit.
+	   */
+	  svn_error_t *(*close_edit)(void *edit_baton,
+	                             apr_pool_t *pool);]
+
+	  /** The editor-driver has decided to bail out. Allow the editor to
+	   * gracefully clean up things if it needs to.
+	   */
+	  svn_error_t *(*abort_edit)(void *edit_baton,
+	                             apr_pool_t *pool);
+	} svn_delta_editor_t;
+
+
+
+//tbd
